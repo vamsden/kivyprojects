@@ -1,0 +1,9 @@
+level size=6,6 energy=10 flys=4 boats=0
+background source=img/background_dark.png
+start pos=3,0 source=img/start.png
+end pos=3,5 source=img/end.png
+waterlily id=lily pos=3,1
+waterlily id=lily_001 pos=3,2
+stonelily id=lily_002 pos=3,3
+waterlily id=lily_003 pos=3,4
+frog id=frog player=True sit_img=img/frog_orange_blue_sit.png jump_img=img/frog_orange_blue_jump.png place=start

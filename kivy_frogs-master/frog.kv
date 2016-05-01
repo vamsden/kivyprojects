@@ -1,0 +1,564 @@
+#:kivy 1.8.0
+#:import randint random.randint
+#:import random random.random
+#:import win kivy.core.window
+#:import kivy kivy
+#:import Vector kivy.vector.Vector
+
+# the game background image
+<Background>
+    source: self.source
+    size: app.window.size
+    allow_stretch: True
+    keep_ratio: False
+
+<Live@Image>
+    alive_img: "img/live.png"
+    lost_img: "img/live_lost.png"
+    size_hint: None, None
+    size: dp(35), dp(35)
+    source: self.alive_img
+
+<LevelChooserPopup>
+    levels: levels
+    custom_levels: custom_levels
+    canvas:
+        Color:
+            rgba: .8, .4, .2, .8
+        Rectangle:
+            pos: root.pos
+            size: root.size
+    GridLayout:
+        id: levels
+        size_hint: 1, .45
+        y: root.y + root.height * .55
+        x: root.x
+        cols: 5
+        rows: 5
+        width: root.width
+    Label:
+        text: "Custom Levels"
+        y: custom_levels.top
+        x: root.x
+        height: dp(25)
+        width: root.width
+    GridLayout:
+        id: custom_levels
+        size_hint: 1, .45
+        y: root.y
+        x: root.x
+        cols: 5
+        rows: 5
+        width: root.width
+
+
+<AboutPopup>
+    app: app
+    canvas:
+        Color:
+            rgba: .8, .4, .2, .8
+        Rectangle:
+            pos: root.pos
+            size: root.size
+    Label:
+        id: title
+        font_size: dp(40)
+        height: self.font_size
+        text: "An Ọpọlọ is a frog"
+        center_x: root.center_x
+        top: root.top
+    Label: 
+        id: name
+        font_size: dp(15)
+        height: self.font_size
+        center_x: root.center_x
+        top: title.y - dp(10)
+        halign: "center"
+        text: "By Valentin Pratz"
+    Image:
+        id: vowo_icon
+        size: dp(150), dp(150)
+        allow_stretch: True
+        keep_ratio: False
+        source: "img/vocaword.png"
+        center_x: root.center_x
+        top: name.y - dp(10)
+    Label:
+        id: about_me
+        text: "About me: I'm a hobby developer\nand I'm developing for Voca-Word,\na serious games website, together\nwith Peter Koppatz.\nOur projects can be found on\nvocaword.org\n\nYou made a great level\nand want to share it?\nYou have feedback for me?\nSend it to opolo@vocaword.org!"
+        halign: "center"
+        center_x: root.center_x
+        height: dp(180)
+        top: vowo_icon.y - dp(10)
+
+
+<HelpPopup>
+    canvas:
+        Color:
+            rgba: .8, .4, .2, 1
+        Rectangle:
+            pos: root.pos
+            size: root.size
+    Image:
+        source: "img/help.png"
+        pos: root.pos
+        size: root.size
+
+
+<OverviewWidget>
+    app: app
+    screen: screen
+    size: dp(100), dp(100)
+    pos: 0, 0
+    rect_x: 0
+    rect_y: 0
+    rect_pos: [self.rect_x, self.rect_y]
+    scl: 1
+    visible: True
+    canvas:
+        Color:
+            rgba: .8, 1, .8, .7 if root.visible else 0
+        Rectangle:
+            size: root.size
+            pos: root.pos
+        Color:
+            rgba: 1, 1, 1, 1 if root.visible else 0
+        Line:
+            width: dp(1)
+            rectangle: [root.rect_x, root.rect_y, (app.window.width / 5) / root.scl, (app.window.height / 5) / root.scl]
+    Widget:
+        id: screen
+        pos: root.pos
+        size: root.size
+        
+
+# line to draw jump distance
+<JumpLine>
+    app: app
+    x1: 0
+    y1: 0
+    x2: 0
+    y2: 0
+    max: dp(125)
+    canvas:
+        Color:
+            rgba: 1, 0, 0, .9
+        Line:
+            points: self.x1, self.y1, self.x2, self.y2
+            width: dp(1.5)
+
+<Fly>
+    app: app
+    scatter: scatter
+    fly_img: "img/fly_red_eye.png"
+    source: self.fly_img
+    size_hint: None, None
+    size: dp(30), dp(30)
+    speed: 1.5
+    rot_change: random()
+    x: 0 if int(dp(40)) >= int(app.window.width - dp(40)) else randint(int(dp(40)), int(app.window.width - dp(40)))
+    y: 0 if int(dp(40)) >= int(app.window.height - dp(40)) else randint(int(dp(40)), int(app.window.height - dp(40)))
+    
+    Scatter:
+        id: scatter
+        do_rotation: False
+        do_translation: False
+        do_scale: False
+        size: root.size
+        pos: root.pos
+        center: root.center
+        rotation: randint(0, 360)
+
+        Image:
+            source: root.source
+            size: root.size
+            center_x: self.center_x
+            center_y: self.center_y
+            allow_stretch: True
+            keep_ratio: False
+
+<Boat>
+    app: app
+    scatter: scatter
+    source: "img/boat.png"
+    size_hint: None, None
+    size: dp(20), dp(70)
+    speed: -1.5
+    active: True
+    rot_change: random()
+    x: 0 if int(dp(40)) >= int(app.window.width - dp(40)) else randint(int(dp(40)), int(app.window.width - dp(40)))
+    y: 0 if int(dp(40)) >= int(app.window.height - dp(40)) else randint(int(dp(40)), int(app.window.height - dp(40)))
+    
+    Scatter:
+        id: scatter
+        do_rotation: False
+        do_translation: False
+        do_scale: False
+        size: root.size
+        pos: root.pos
+        center: root.center
+        rotation: randint(0, 360)
+
+        Image:
+            source: root.source
+            size: root.size
+            center_x: self.center_x
+            center_y: self.center_y
+            allow_stretch: True
+            keep_ratio: False
+
+# frog description
+<Frog>
+    app: app
+    scatter: scatter
+    sit_img: self.sit_img
+    jump_img: self.jump_img
+    source: self.sit_img
+    size_hint: None, None
+    size: dp(35), dp(75)
+    place: self.place
+    alive: True
+    player: False
+    jumpline: None
+    Scatter:
+        id: scatter
+        do_rotation: False
+        do_translation: False
+        do_scale: False
+        size: root.size
+        pos: root.pos
+        center: root.center
+
+        Image:
+            source: root.source
+            size: root.size
+            center_x: self.center_x
+            center_y: self.center_y
+            allow_stretch: True
+            keep_ratio: False
+            
+# water lily description
+<WaterLily>
+    app: app
+    scatter: scatter
+    source: "img/water_lily_001.png"
+    size_hint: None, None
+    size: dp(60), dp(60)
+    free: True
+    static: False
+    auto_reappear: True
+    sinking: False
+    appearing: False
+    Scatter:
+        id: scatter
+        do_rotation: False
+        do_translation: False
+        do_scale: False
+        rotation: randint(0, 360)
+        size: root.size
+        pos: root.pos
+        center: root.center
+
+        Image:
+            source: root.source
+            size: root.size
+            center_x: self.center_x
+            center_y: self.center_y
+            allow_stretch: True
+            keep_ratio: False
+
+
+<Base>
+    source: self.source
+    size_hint: None, None
+    size: dp(200), dp(100)
+    allow_stretch: True
+    keep_ratio: False
+    free: True
+    static: True
+
+<StoneLily>
+    static: True
+    source: "img/water_lily_stone.png"
+    auto_reappear: False
+
+
+<MoveableWaterLily>
+    static: True
+    auto_reappear: False
+    label: label
+    custom: custom
+    text: self.text
+    value: self.value
+    solution: self.solution
+    Label:
+        id: label
+        center: root.center
+        text: str(round(root.text, 3)) if root.text and type(root.text) == float else str(root.text)
+        font_size: dp(20)
+    Widget:
+        id: custom
+        size: root.size
+        pos: root.pos
+        on_pos: for c in self.children: c.center = custom.to_parent(*custom.center)
+
+
+<RectangleWidget>
+    rgb: self.rgb
+    canvas:
+        Color:
+            rgb: self.rgb if self.rgb else [1, 1, 1]
+        Rectangle:
+            size: root.size
+            pos: root.pos
+
+
+<TriangleWidget>
+    rgb: self.rgb
+    canvas:
+        Color:
+            rgb: self.rgb if self.rgb else [1, 1, 1]
+        Triangle:
+            points: [root.pos[0], root.pos[1], root.pos[0] + root.width, root.pos[1], root.pos[0] + root.width / 2, root.pos[1] + root.height]
+
+
+<EllipseWidget>
+    rgb: self.rgb
+    canvas:
+        Color:
+            rgba: [root.rgb[0], root.rgb[1], root.rgb[2], 1] if self.rgb else [1, 1, 0]
+        Ellipse:
+            size: root.size
+            pos: root.pos
+
+
+<SwitchLily>
+    static: True
+    auto_reappear: False
+    not_pressed_img: "img/lily_switch_not_pressed.png"
+    pressed_img: "img/lily_switch_pressed.png"
+    controlled_img: "img/water_lily_controlled.png"
+    pressed: not self.free
+    source: self.pressed_img if self.pressed else self.not_pressed_img
+    controlled: self.controlled
+
+
+<ExerciseWidget>
+    app: app
+    orientation: "horizontal"
+    count: 5
+    distance: dp(100)
+    height: dp(60)
+    speed: 1
+    exercise: ""
+    label: label
+    left_of_label: left_of_label
+    right_of_label: right_of_label
+    label_width: dp(200)
+    lily_widget: lily_widget
+    Widget:
+        id: lily_widget
+        on_pos: for c in lily_widget.children: c.center = self.center
+    Widget:
+        id: left_of_label
+        top: label.top
+        right: label.x
+        size: dp(30), dp(30)
+    Label:
+        id: label
+        font_size: dp(25)
+        height: dp(30)
+        text: str(root.exercise)
+        width: root.label_width
+        center_x: root.pos[0] + root.distance / 2 if root.orientation == "vertical" else root.pos[0] + root.count / 2 * root.distance + root.distance / 2
+        top: root.y
+        halign: "center"
+    Widget:
+        id: right_of_label
+        top: label.top
+        x: label.right
+        size: dp(30), dp(30)
+
+
+<MathWidget>
+    app: app
+    number_range: -10, 10
+    type: "subtract"
+
+
+<IntervalWidget>
+    exercise: "Which interval is it? Play"
+    label_width: dp(300)
+
+
+<GameWidget>
+    app: app
+    id: game
+    preferred_size: dp(600), dp(700)
+    size: app.window.size
+    center_x: app.window.width / 2
+    y: 0
+    background: background
+    start: start
+    end: end
+    status: status
+    energy_label: energy_label
+    level_label: level_label
+    game_scatter: game_scatter
+    overview: overview
+    store: []
+    lilys: []
+    lily_provider: []
+    frogs: []
+    flys: []
+    boats: []
+    player: self.player
+    live_imgs: [live, live1, live2]
+    lives: 3
+    energy: self.energy
+    running: True
+    standard_objects: {"background": background, "start": start, "end": end, "game_scatter": game_scatter, "live": live, "live1": live1, "live2": live2, "status": status, "energy_label": energy_label}
+    objects: {}
+    Background:
+        id: background
+        source: "img/background_blue.png"
+    GameScatter:
+        app: app
+        id: game_scatter
+        do_translate: True
+        do_rotation: False
+        do_scale: True
+        size: game.preferred_size
+        width: game.preferred_size[0] # if app.window.width < game.preferred_size[0] else app.window.width
+        y: 0
+        center_x: game.center_x
+        auto_bring_to_front: False
+        before_jumpline: before_jumpline
+        jumplines: jumplines
+        after_jumplines: after_jumplines
+        Base:
+            id: start
+            x: dp(300)
+            y: 0
+            source: "img/start.png"
+            free: False
+
+        Base:
+            id: end
+            center_x: start.center_x
+            y: start.y + dp(600)
+            source: "img/end.png"
+    
+        Widget:
+            id: before_jumpline
+
+        Widget:
+            index: 1
+            id: jumplines
+
+        Widget:
+            id: after_jumplines
+
+    OverviewWidget:
+        id: overview
+        width: game.preferred_size[0] / 5
+        height: game.preferred_size[1] / 5
+        rect_x: -game_scatter.x / 5 / game_scatter.scale
+        rect_y: -game_scatter.y / 5 / game_scatter.scale
+        scl: game_scatter.scale
+    Live:
+        id: live
+        top: app.window.height - dp(5)
+        x: dp(10)
+    Live:
+        id: live1
+        top: app.window.height - dp(5)
+        x: dp(50)
+    Live:
+        id: live2
+        top: app.window.height - dp(5)
+        x: dp(90)
+
+    Label:
+        id: energy_label
+        size_hint: None, None
+        top: live2.y - dp(10)
+        x: dp(10)
+        text: "Energy: " + str(game.energy)
+        height: self.font_size
+
+    Label:
+        id: level_label
+        size_hint: None, None
+        top: energy_label.y - dp(10)
+        x: dp(10)
+        text: "Level: " + self.l
+        l: "1"
+        height: self.font_size
+
+    Image:
+        id: help_btn
+        top: level_label.y - dp(10)
+        x: dp(10)
+        size: dp(40), dp(40)
+        allow_stretch: True
+        keep_ratio: False
+        source: "img/icons/help.jpg"
+        on_touch_down: if self.collide_point(*args[1].pos): app.help_popup.open()
+
+    Image:
+        id: about_btn
+        top: help_btn.y - dp(10)
+        x: dp(10)
+        size: dp(40), dp(40)
+        allow_stretch: True
+        keep_ratio: False
+        source: "img/icons/about.png"
+        on_touch_down: if self.collide_point(*args[1].pos): app.about_popup.open()
+
+    Image:
+        id: level_btn
+        top: about_btn.y - dp(10)
+        x: dp(10)
+        size: dp(40), dp(40)
+        allow_stretch: True
+        keep_ratio: False
+        source: "img/icons/level.jpg"
+        on_touch_down: if self.collide_point(*args[1].pos): app.level_popup.open()
+
+    Image:
+        id: settings_btn
+        top: level_btn.y - dp(10)
+        x: dp(10)
+        size: dp(40), dp(40)
+        allow_stretch: True
+        keep_ratio: False
+        source: "img/icons/settings.png"
+        on_touch_down: if self.collide_point(*args[1].pos): app.open_settings()
+
+    Image:
+        id: level_editor_btn
+        top: settings_btn.y - dp(10)
+        x: dp(10)
+        size: dp(40), dp(40)
+        allow_stretch: True
+        keep_ratio: False
+        source: "img/icons/editor.png"
+        on_touch_down: if self.collide_point(*args[1].pos): app.open_level_editor()
+
+    Image:
+        id: toggle_minimap_btn
+        top: level_editor_btn.y - dp(10)
+        x: dp(10)
+        size: dp(40), dp(40)
+        allow_stretch: True
+        keep_ratio: False
+        source: "img/icons/map.png"
+        on_touch_down: if self.collide_point(*args[1].pos): root.overview.visible = not root.overview.visible
+
+    Label:
+        id: status
+        size_hint: None, None
+        center_x: app.window.width / 2
+        center_y: app.window.height / 2
+        font_size: dp(30)

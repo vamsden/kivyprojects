@@ -1,0 +1,476 @@
+#:kivy 1.8.0
+
+<BackgroundPH>
+    source: self.source
+    size: app.window.size
+    allow_stretch: True
+    keep_ratio: False
+
+
+<ToolBar>
+    offset: dp(10)
+    canvas:
+        Color:
+            rgba: .7, .7, .7, .5
+        Rectangle:
+            pos: root.pos
+            size: root.size
+    Widget:
+        # the place holders(PH) must be in widgets,
+        # else the new PH don't lay over the PH before
+        pos: 0, 0
+        WaterLilyPH:
+            pos: 0, 0
+    Widget:
+        pos: (1 * dp(60) + root.offset, 0)
+        StoneLilyPH:
+            pos: (1 * dp(60) + root.offset, 0)
+    Widget:
+        pos: (2 * dp(60) + 2 * root.offset, 0)
+        SwitchLilyPH:
+            pos: (2 * dp(60) + 2 * root.offset, 0)
+    Widget:
+        pos: (3 * dp(60) + 3 * root.offset, 0)
+        ExercisePH:
+            pos: (3 * dp(60) + 3 * root.offset, 0)
+    Widget:
+        pos: (4 * dp(60) + 4 * root.offset, 0)
+        FrogPH:
+            pos: (4 * dp(60) + 4 * root.offset, 0)
+
+
+<DividingLine@Widget>
+    height: dp(10)
+    canvas:
+        Color:
+            rgba: .8, .8, .8, .8
+        Line:
+            points: [root.pos[0], root.pos[1], root.pos[0] + root.width, root.pos[1]]
+            width: 1.5
+            cap: "none"
+
+
+<NumericInput>
+    multiline: False
+
+
+<SideBar>
+    offset: dp(2)
+    level_settings: level_settings
+    object_content: object_content
+    orientation: "vertical"
+    canvas:
+        Color:
+            rgba: .5, .5, .5, .5
+        Rectangle:
+            pos: root.pos
+            size: root.size
+    AccordionItem:
+        accordion: root
+        title: "Options"
+        RelativeLayout:
+            id: options_acc
+            Button:
+                id: close
+                text: "Close"
+                size_hint: .9, None
+                x: (options_acc.width - self.width) / 2
+                top: options_acc.height
+                height: dp(40)
+                on_press: app.repeat_level = False; app.close_level_editor()
+            Button:
+                id: export
+                text: "Export"
+                top: close.y - root.offset
+                height: dp(40)
+                size_hint: .9, None
+                x: (options_acc.width - self.width) / 2
+                on_press: app.editor.export_popup.open()
+            Button:
+                id: clear
+                top: export.y - root.offset
+                text: "Clear"
+                height: dp(40)
+                size_hint: .9, None
+                x: (options_acc.width - self.width) / 2
+                on_press: app.editor.level.build_standard()
+            Button:
+                id: test
+                top: clear.y - root.offset
+                text: "Test it"
+                height: dp(40)
+                size_hint: .9, None
+                x: (options_acc.width - self.width) / 2
+                on_press: app.repeat_level=True; app.editor.export_level("levels/tmp_level.txt"); app.load_custom_level("levels/tmp_level.txt"); app.close_level_editor()
+            Button:
+                id: open
+                top: test.y - root.offset
+                text: "Load Level"
+                height: dp(40)
+                size_hint: .9, None
+                x: (options_acc.width - self.width) / 2
+                on_press: app.editor.load_dialog.open()
+    AccordionItem:
+        accordion: root
+        title: "Level Settings"
+        RelativeLayout:
+            id: level_settings_acc
+            Widget:
+                id: level_settings
+                flys_count: flys_count
+                boats_count: boats_count
+                energy_count: energy_count
+                Label:
+                    id: flys_label
+                    text: "Flys"
+                    height: self.font_size
+                    size_hint: 1, None
+                    top: level_settings_acc.height
+                NumericInput:
+                    id: flys_count
+                    top: flys_label.y - root.offset
+                    size_hint: 1, None
+                    text: "4"
+                    height: self.font_size * 2
+                Label:
+                    id: boats_label
+                    text: "Boats"
+                    height: self.font_size
+                    size_hint: 1, None
+                    top: flys_count.y - root.offset
+                NumericInput:
+                    id: boats_count
+                    top: boats_label.y - root.offset
+                    size_hint: 1, None
+                    text: "1"
+                    height: self.font_size * 2
+                Label:
+                    id: energy_label
+                    text: "Start Energy"
+                    height: self.font_size
+                    size_hint: 1, None
+                    top: boats_count.y - root.offset
+                NumericInput:
+                    id: energy_count
+                    top: energy_label.y - root.offset
+                    size_hint: 1, None
+                    text: "4"
+                    height: self.font_size * 2
+    AccordionItem:
+        accordion: root
+        title: "Object Settings"
+        RelativeLayout:
+            Widget:
+                id: object_content
+                size_hint: 1, 1
+
+
+<ExportPopup>
+    overwrite_btn: overwrite_btn
+    Button:
+        text: "New"
+        on_press: app.editor.last_export = app.editor.next_level_name(); app.editor.export_level(app.editor.last_export); app.add_custom_level(app.editor.last_export); overwrite_btn.disabled = False; app.editor.export_popup.dismiss()
+        size_hint: .5, 1
+        pos: root.pos
+    Button:
+        id: overwrite_btn
+        text: "Overwrite"
+        disabled: True if not hasattr(app, "editor") else False if app.editor.last_export else True
+        on_press: app.editor.overwrite_level(); app.editor.export_popup.dismiss()
+        size_hint: .5, 1
+        x: root.center_x
+        y: root.y
+
+
+<PHScatter>
+    app: app
+    size: dp(60), dp(60)
+    do_rotation: False
+    do_translation: True
+    do_scale: False
+    auto_bring_to_front: False
+    moved: False
+    source: self.source
+    img: img
+    Image:
+        id: img
+        size: root.size
+        source: root.source
+        allow_stretch: True
+        keep_ratio: False
+
+
+<WaterLilyPH>
+    source: "img/water_lily_001.png"
+
+
+<ExerciseOptions>
+    count: int(count_input.text) if count_input.text else 0
+    speed: 1
+    orientation: orient_input.text.lower() if orient_input.text else "horizontal"
+    tp: tp_input.text
+    obj: self.obj
+    l: l
+    tp_input: tp_input
+    count_input: count_input
+    orient_input: orient_input
+    RelativeLayout:
+        id: l
+        pos: 0, 0
+        size: root.size
+        size_hint: 1, 1
+        Spinner:
+            id: tp_input
+            height: dp(40)
+            size_hint: .9, None
+            x: (l.width - self.width) / 2
+            top: l.top
+            text: "Math"
+            values: sorted(["Math", "Interval", "Color", "Roman", "Form", "Chemistry"])
+        Spinner:
+            id: orient_input
+            height: dp(40)
+            size_hint: .9, None
+            x: (l.width - self.width) / 2
+            top: tp_input.y
+            text: "Horizontal"
+            values: ["Horizontal", "Vertical"]
+        Label:
+            id: count_label
+            text: "Count"
+            size_hint: .9, None
+            height: self.font_size
+            x: (l.width - self.width) / 2
+            top: orient_input.y
+        NumericInput:
+            id: count_input
+            top: count_label.y
+            size_hint: .9, None
+            x: (l.width - self.width) / 2
+            text: "5"
+            height: self.font_size * 2
+
+
+<ExercisePH>
+    source: "img/water_lily_001.png"
+    distance: dp(100)
+    count: self.options.count if self.options else 5
+    orientation: self.options.orientation if self.options else "horizontal"
+    width: dp(60)
+    height: dp(60)
+    real_points: [0 + dp(30), root.height / 2, root.count * (root.distance) + dp(30), root.height / 2]
+    ph_points: [dp(30), root.height / 2, dp(30), root.height / 2]
+    line_points: [0, 0, 0, 0] if not root.ph_points else root.ph_points
+    exercise_text: ""
+    Label:
+        text: "a"
+        center: root.img.center
+    Label:
+        text: root.exercise_text
+        font_size: dp(25)
+        width: dp(200)
+        center_x: root.distance / 2 if root.orientation == "vertical" else root.count / 2 * root.distance + root.distance / 2
+        y: - 2.5 * self.font_size
+        halign: "center"
+    Widget:
+        canvas:
+            Color:
+                rgba: .2, 1, .2, .7
+            Line:
+                cap_precision: 25
+                width: dp(30)
+                points: [0, 0, 0, 0] if not root.line_points else root.line_points
+
+
+<StoneLilyPH>
+    source: "img/water_lily_stone.png"
+
+
+<SelectButton>
+    app: app
+    selecting: False
+    selected: None
+    ignore: []
+
+
+<SwitchLilyOptions>
+    controlled: select_btn.selected
+    last_controlled: None
+    controlled_img: "img/water_lily_controlled.png"
+    obj: self.obj
+    select_btn: select_btn
+    SelectButton:
+        id: select_btn
+        height: dp(40)
+        width: root.width - dp(20)
+        x: root.x + dp(10)
+        top: root.top
+        ignore: [root.obj]
+        text: "Pick controlled"
+    Label:
+        width: root.width
+        height: self.font_size
+        top: select_btn.y
+        x: root.x
+        text: "Controlled: " if not root.controlled else "Controlled: " + root.controlled.id
+
+<SwitchLilyPH>
+    source: "img/lily_switch_not_pressed.png"
+
+
+<BasePH>
+    size: dp(200), dp(100)
+
+
+<FrogOptions>
+    obj: self.obj
+    color: color_input.text
+    color_input: color_input
+    Label:
+        id: color_label
+        width: root.width
+        height: self.font_size
+        top: root.top
+        x: root.x
+        text: "Frog Color"
+    Spinner:
+        id: color_input
+        height: dp(40)
+        width: root.width - dp(20)
+        x: root.x + dp(10)
+        top: color_label.y - dp(5)
+        text: "Green"
+        values: sorted(["Darkblue-Black", "Lightblue-Black", "Yellow-Black", "Green", "Red-Black", "Yellow", "Turquoise-Black", "Rose", "Blue-Orange"])
+
+
+<FrogPH>
+    sit_img: "img/frog_green_sit.png"
+    jump_img: "img/frog_green_jump.png"
+    source: self.sit_img
+    size: dp(35), dp(75)
+    place: None
+    player: False
+    auto_bring_to_front: True
+
+
+<StartPH>
+    id: start
+    x: dp(300)
+    y: 0
+    source: "img/start.png"
+    frog: frog
+    Image:
+        id: frog
+        size: dp(35), dp(75)
+        center_x: root.width / 2
+        sit_img: "img/frog_orange_blue_sit.png"
+        jump_img: "img/frog_orange_blue_jump.png"
+        source: self.sit_img
+        player: True
+        place: start
+
+
+<EndPH>
+    id: end
+    x: dp(300)
+    y: dp(600)
+    source: "img/end.png"
+
+
+<LevelScatter>
+    app: app
+    do_rotation: False
+    do_translation: True
+    do_scale: True
+    auto_bring_to_front: True
+
+
+<LevelEditorWidget>
+    app: app
+    size: app.window.size
+    level: level
+    delete: delete
+    object_count: 0
+    sidebar: sidebar
+    select: select
+    last_export: ""
+    BackgroundPH:
+        id: background
+        source: "img/background_blue.png"
+    Widget:
+        y: toolbar.top
+        height: root.height - toolbar.top
+        LevelScatter:
+            id: level
+            y: 0
+            height: -self.y + root.height
+            width: -self.x + root.width
+            canvas:
+                Color:
+                    rgb: .9, .9, .9
+                Line:
+                    width: 1
+                    points: self.calculate_line_points()
+    Widget:
+        id: select
+        size: dp(30), dp(30)
+        pos: -400, -400
+        canvas:
+            Color:
+                rgba: 1, 0, 0, .8
+            Line:
+                width: 1.5
+                points: [select.x, select.center_y, select.right, select.center_y]
+            Line:
+                width: 1.5
+                points: [select.center_x, select.top, select.center_x, select.y]
+    ToolBar:
+        id: toolbar
+        height: dp(65)
+        width: root.width
+    SideBar:
+        id: sidebar
+        width: dp(150)
+        height: root.height
+        right: root.right
+    Widget:
+        id: delete
+        size: dp(80), dp(80)
+        top: root.top
+        x: 0
+        canvas:
+            Color:
+                rgba: .9, 0, 0, .7
+            Rectangle:
+                size: dp(80), dp(80)
+                pos: 0, root.height - dp(80)
+        Image:
+            x: dp(20)
+            source: "img/icons/trash.png"
+            top: root.top
+            size: dp(40), dp(40)
+            allow_stretch: True
+            keep_ratio: False
+
+
+<LoadDialog>
+    app: app
+    title: "Choose a file"
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: "levels/"
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+
+            Button:
+                text: "Load"
+                on_release: root.load(filechooser.path, filechooser.selection)

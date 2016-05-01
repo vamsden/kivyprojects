@@ -1,0 +1,239 @@
+#:kivy 1.8.0
+#: import Animation kivy.animation.Animation
+#: import random random
+
+
+<ArithmeBricksGame>:
+    limits: self.difficulty_level_limits[int(difficulty_level_slider.value) - 1]
+
+    width_brick_ratio: 13
+    min_width_brick_ratio: 10
+
+    brick_width: self.width / (self.width_brick_ratio + 0.5)
+    brick_height: self.brick_width * 1.36
+    panel_height: self.width / 10.3
+    aux_text_size: (self.width * self.height) / (self.width + self.height) / 12.
+
+    title_lines: ['ArithmeBricks', '', 'by zuo']
+
+    background_color: 0.5, 0.65, 0.9, 1
+
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    on_playing:
+        symbols = '0134' if args[1] else ''
+        for symbol in symbols: app.play_sound(symbol)
+
+    on_finished:
+        symbols = ['=='] + list('*/-+0123456789') if args[1] else []
+        for i, symbol in enumerate(symbols): app.play_sound(symbol, delay=(0.4 + i/10.), volume=0.1)
+
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0.1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        height: root.panel_height
+        width: root.width
+        x: 0
+        y: 0
+
+        Button:
+            size_hint: (0.08, 1)
+            font_size: self.height / 2.8
+            text: 'Quit'
+            on_press:
+                root.popup_quit()
+        Button:
+            size_hint: (0.08, 1)
+            font_size: self.height / 2.8
+            text: 'Help'
+            on_press:
+                root.popup_help()
+        Label:
+            size_hint: (0.10, 1)
+            font_size: self.height / 2.8
+            align: 'center'
+            text: 'Level:'
+        Slider:
+            id: difficulty_level_slider
+            size_hint: (0.4, 1)
+            value: 1
+            min: 1
+            max: len(root.difficulty_level_limits)
+            step: 1
+        Label:
+            size_hint: (0.02, 1)
+            text: ''
+        Button:
+            id: new_game_button
+            size_hint: (0.16, 1)
+            text: 'Play more' if root.finished else 'New Game'
+            color: (0.75, 0.9, 1, 1) if root.playing else (1, 1, 1, 1)
+            font_size: self.height / 2.8
+            on_press:
+                if root.playing: root.popup_new_game()
+                else: root.new_game()
+
+
+<Brick>:
+    width: app.root.brick_width
+    height: app.root.brick_height
+    x: min(max(self.x, 0), app.root.width - self.width)
+    y: min(max(self.y, app.root.panel_height + 2), app.root.height - self.height)
+
+    bold: True
+    font_size: app.root.brick_height
+
+    drag_rectangle: self.x, self.y, self.width, self.height
+    drag_timeout: 10000000
+    drag_distance: 0
+
+    background_color: 1, 1, 0.5, 1
+
+    detached_border_color: 0.2, 0.3, 0.55, 0.8
+    move_border_color: 0.6, 0.8, 1, 0.8
+    attached_border_color: 1, 0.9, 0.2, 0.5
+    equal_border_color: 0.1, 1, 0.5, 0.8
+    final_border_color: 0.2, 0.9, 0.2, 0.5
+
+    border_color: self.detached_border_color
+
+    max_snap_x_distance: 0.7 * self.width
+    max_snap_y_distance: 0.66 * self.height
+    max_double_attach_x_distance: self.max_snap_x_distance / 2
+    max_double_attach_y_distance: self.max_snap_y_distance / 3
+
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgba: self.border_color
+        Line:
+            points: self.x, self.y, self.x + self.width, self.y, self.x + self.width, self.y + self.height, self.x, self.y + self.height, self.x, self.y
+            width: 2
+
+    on_state:
+        cur_background_color = self.background_color
+        target_border_color = getattr(self, args[1] + '_border_color')
+        if args[1] == 'final': anim = Animation(border_color=target_border_color, background_color=self.equal_border_color, duration=0.2, t='in_out_quad') + Animation(border_color=self.equal_border_color, background_color=cur_background_color, duration=0.2, t='in_out_quad'); anim.repeat = True
+        else: anim = Animation(border_color=target_border_color, duration=0.2, t='out_quint')
+        anim.start(self)
+        if args[1] in ('attached', 'equal'): app.play_sound(self.symbol)
+
+    on_target_pos:
+        Animation(pos=args[1], duration=0.1, t='out_bounce').start(self)
+
+
+<DigitBrick,TitleBrick>:
+    color: 0.9, 0.3, 0.4, 1
+
+
+<OperatorBrick>:
+    color: 0.2, 0.7, 0.4, 1
+
+
+<EqualityBrick>:
+    color: 0.4, 1, 0.4, 1
+    background_color: 0.4, 0.55, 1, 1
+
+
+<TitleBrick>:
+    font_size: app.root.brick_height * 0.67
+    on_target_pos:
+        if random.randint(1, 4) == 4: app.play_sound(random.choice('*-+368'), volume=0.15)
+
+
+<Button>:
+    color: 1, 1, 1, 1
+    background_color: 1, 1.5, 2, 1
+
+
+<YesNoButton@Button>:
+    size_hint: (0.4, 1)
+
+
+<Popup>:
+    separator_color: app.root.background_color
+    size_hint: None, None
+    title_size: app.root.aux_text_size
+
+
+<HelpPopup>:
+    title: 'How to play'
+    size: app.root.width * 0.9, app.root.height * 0.9
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: root.title_size
+        spacing: root.title_size / 2
+
+        Label:
+            size_hint: (1, 0.8)
+            markup: True
+            text: root.help_text
+            text_size: (self.width - root.title_size, self.height - root.title_size)
+            font_size: root.title_size
+            halign: 'justify'
+            valign: 'top'
+        Button:
+            size_hint: (1, 0.2)
+            text: 'OK'
+            font_size: root.title_size
+            on_press:
+                root.dismiss()
+
+
+<QuitPopup>:
+    title: 'Quit?'
+    size: app.root.width * 0.9, max(120, app.root.aux_text_size * 8)
+
+    BoxLayout:
+        orientation: 'horizontal'
+        padding: root.title_size
+        spacing: root.title_size / 2
+
+        YesNoButton:
+            text: 'Yes'
+            font_size: root.title_size
+            on_press:
+                app.stop()
+        YesNoButton:
+            text: 'No'
+            font_size: root.title_size
+            on_press:
+                root.dismiss()
+
+
+<NewGamePopup>:
+    title: 'Abandon current game?'
+    size: app.root.width * 0.9, max(120, app.root.aux_text_size * 8)
+    user_decision: False
+
+    BoxLayout:
+        orientation: 'horizontal'
+        padding: root.title_size
+        spacing: root.title_size / 2
+
+        YesNoButton:
+            text: 'Yes'
+            font_size: root.title_size
+            on_press:
+                root.user_decision = True
+                root.dismiss()
+        YesNoButton:
+            text: 'No'
+            font_size: root.title_size
+            on_press:
+                root.dismiss()
